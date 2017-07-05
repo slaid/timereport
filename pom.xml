@@ -7,7 +7,6 @@
     <version>1.0</version>
     <name>Time Report</name>
     <description>Time Report Converter</description>
-    <packaging>war</packaging>
 
     <properties>
         <jdk.version>1.8</jdk.version>
@@ -36,6 +35,20 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.cgi.timereport.ui.TooltipSample</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
