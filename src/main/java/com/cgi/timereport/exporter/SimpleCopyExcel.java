@@ -3,8 +3,7 @@ package com.cgi.timereport.exporter;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -79,7 +78,6 @@ public class SimpleCopyExcel {
             System.err.println("At least one argument expected");
             return;
         }
-
         String fileName = args[0];
 
         try (XSSFWorkbook workbook = readFile1("C:\\Users\\michael.carvalho\\Documents\\Angela\\OTH_201706_v2.xlsx")) {
@@ -87,12 +85,11 @@ public class SimpleCopyExcel {
                 // Create a Sheet
                 XSSFSheet tmpSheet = tmpWorkbook.createSheet();
 
-
                 // Declare a Row Object Reference
-                Row row;
+                XSSFRow row;
 
                 // Declare a Cell Object Reference
-                Cell cell;
+                XSSFCell cell;
 
                 CellStyle cellStyle = tmpWorkbook.createCellStyle();
 
@@ -107,22 +104,94 @@ public class SimpleCopyExcel {
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
                 cellStyle.setFillForegroundColor((short) 0xA);
 
-                tmpWorkbook.setSheetName(0, "First Sheet");
+                // Create Sheet to Write into the document
+                XSSFSheet sheet;
 
-                XSSFSheet sheet = workbook.getSheetAt(0);
+                if (workbook != null)
+                    sheet = workbook.getSheetAt(0);
+                else {
+                    System.out.println("There isn't any Sheet Available.");
+                    System.out.println("Aborted!");
+                    return;
+                }
+
+
+
+
+
+
+
+                String sheetName = workbook.getSheetName(0);
+                tmpWorkbook.setSheetName(0, sheetName);
+
+                // Get number of Rows from Sheet
                 int numOfRows = sheet.getPhysicalNumberOfRows();
 
                 System.out.println("Number of Rows are: " + numOfRows);
 
-                for (int r=0; r < 25; r++) {
+
+                for (int r = 0; r < numOfRows; r++) {
                     row = sheet.getRow(r);
-                    for (short c=0; c < 2; c++) {
-                        cell = row.getCell(c);
-                        System.out.println(cell.toString());
+
+                    XSSFRow tmpRow = tmpSheet.createRow(r);
+                    XSSFCell tmpCell;
+
+
+
+                    tmpSheet.setColumnWidth(r,  sheet.getColumnWidth(r));
+
+
+                    System.out.println("% % % % % % % - - ROW Number " + r + " - - % % % % % % %");
+                    if (row != null) {
+                        for (short c = 0; c < row.getPhysicalNumberOfCells(); c++) {
+                            cell = row.getCell(c);
+                            if (cell != null) {
+                                XSSFCellStyle tmpCellStyle = tmpWorkbook.createCellStyle();
+                                // Creates the new Cell
+                                tmpCell = tmpRow.createCell(c);
+                                // tmpCellStyle.setWrapText(cell.getCellStyle().getWrapText());
+                                tmpCellStyle.cloneStyleFrom(cell.getCellStyle());
+                                // Set the Cell type
+                                tmpCell.setCellStyle(tmpCellStyle);
+
+                                // tmpCellStyle.cloneStyleFrom(cell.getCellStyle());
+                                // cell.setCellStyle(tmpCellStyle);
+
+                                // Checks the type of the Cell
+                                switch (cell.getCellTypeEnum()) {
+                                    case BLANK:
+                                        System.out.print("- - -  EMPTY - - -");
+                                        tmpCell.setCellValue("");
+                                        break;
+                                    case BOOLEAN:
+                                        System.out.print(cell.getBooleanCellValue());
+                                        tmpCell.setCellValue(cell.getBooleanCellValue());
+                                        break;
+                                    case STRING:
+                                        System.out.print(cell.getStringCellValue());
+                                        tmpCell.setCellValue(cell.getStringCellValue());
+                                        break;
+                                    case NUMERIC:
+                                        System.out.print(cell.getNumericCellValue());
+                                        tmpCell.setCellValue(cell.getNumericCellValue());
+                                        break;
+                                    case FORMULA:
+                                        System.out.print(cell.getCellFormula());
+                                        tmpCell.setCellFormula(cell.getCellFormula());
+                                        break;
+                                }
+                                System.out.print("  |  ");
+                            }
+                        }
                     }
-                    System.out.println("- - - - - - - -");
+                    System.out.println();
+                    System.out.println("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #");
                 }
 
+
+            try (FileOutputStream outputStream = new FileOutputStream("workbook.xlsx")) {
+                tmpWorkbook.write(outputStream);
+            }
 
             }
         } catch (IOException e) {
@@ -131,7 +200,5 @@ public class SimpleCopyExcel {
 
         System.out.println("Filename is: " + fileName);
         System.out.println("copy-" + fileName);
-       //  System.out.println(workbook.getNameAt(0));
     }
-
 }
