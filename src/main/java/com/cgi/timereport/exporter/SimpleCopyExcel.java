@@ -181,9 +181,9 @@ public class SimpleCopyExcel {
                                                         // Create temporary/new cell
                                                         newCell = newRow.createCell(c);
                                                         // Clone the properties from the cell being read
-                                                        // newCellStyle.cloneStyleFrom(cell.getCellStyle());
+                                                        newCellStyle.cloneStyleFrom(cell.getCellStyle());
                                                         // Set the new Style into the new cell created
-                                                        // newCell.setCellStyle(newCellStyle);
+                                                        newCell.setCellStyle(newCellStyle);
 
                                                         switch (cell.getCellTypeEnum()) {
                                                             case BLANK:
