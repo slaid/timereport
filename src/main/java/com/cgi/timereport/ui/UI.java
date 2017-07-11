@@ -6,11 +6,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UI extends Application {
 
@@ -52,10 +51,19 @@ public class UI extends Application {
         list.add("Angela");
         list.add("Joana");
         listView.setItems(list);
-        root.getChildren().add(listView);
-        root.getChildren().add(open);
-        root.getChildren().add(execute);
-        root.getChildren().add(showConsole);
+
+    }
+
+
+    private GridPane addGridPane() {
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.add(listView, 0, 0);
+        gridPane.add(open, 1, 0);
+        gridPane.add(execute, 1, 1);
+        gridPane.add(showConsole, 1, 2);
+        return gridPane;
     }
 
     @Override
