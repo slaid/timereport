@@ -1,27 +1,44 @@
 package com.cgi.timereport.ui;
 
+import com.cgi.timereport.util.FXUtil;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.awt.*;
+import java.io.File;
+import java.io.PrintStream;
 
 public class UI extends Application {
 
     private Button open;
     private Button execute;
     private Button showConsole;
-    private FileChooser fileChooser;
     private Scene scene;
-    private ListView<String> listView;
-    private ObservableList<String> list;
+    private ListView<File> listView;
+    private ObservableList<File> list;
     private StackPane root;
-
+    private Console console;
+    private TextArea textArea;
+    private PrintStream printStream;
+    private VBox vboxLeft;
+    private VBox vboxRight;
+    private BorderPane borderPane;
+    private FileChooser fileChooser;
+    private Desktop desktop;
+    private String tmpStringFile;
 
     /**
      * Initiates the Graphical components
@@ -29,52 +46,118 @@ public class UI extends Application {
     private void initComponents() {
         open = new Button("Open");
         execute = new Button("Execute");
-        showConsole = new Button("Show Console");
+        showConsole = new Button("Console");
         execute.setDisable(true);
         fileChooser = new FileChooser();
         list = FXCollections.observableArrayList();
         listView = new ListView<>(list);
         root = new StackPane();
+        borderPane = new BorderPane();
+        vboxLeft = new VBox();
+        vboxRight = new VBox();
+        desktop = Desktop.getDesktop();
     }
+
 
     /**
      * Setups the components
      */
     private void setupComponents() {
-        listView.setPrefWidth(100);
-        listView.setPrefHeight(70);
+        listView.setPrefWidth(200);
+        listView.setPrefHeight(100);
         listView.setEditable(true);
-        list.add("Mike");
-        list.add("Marco");
-        list.add("Inês");
-        list.add("Marisa");
-        list.add("Angela");
-        list.add("Joana");
-        listView.setItems(list);
+        // listView.setItems(list);
+        textArea = FXUtil.build(new TextArea(), textArea1 -> {
+            textArea1.prefHeight(800);
+            textArea1.prefWidth(600);
+            textArea1.setWrapText(true);
+            textArea1.setEditable(false);
+        });
+        vboxLeft.setAlignment(Pos.CENTER);
+        vboxLeft.setPadding(new Insets(15,12, 15, 12));
+        vboxRight.setAlignment(Pos.CENTER);
+        vboxRight.setPadding(new Insets(15, 12, 15, 12));
+        vboxRight.setSpacing(7);
+        vboxLeft.getChildren().add(listView);
+        vboxRight.getChildren().addAll(open, execute, showConsole);
+        borderPane.setPrefSize(100, 100);
+        borderPane.setLeft(vboxLeft);
+        borderPane.setRight(vboxRight);
+        console = new Console(textArea);
+        printStream = new PrintStream(console, true);
+        // borderPane.setStyle("-fx-background-image: url(hello_kitty.jpg);");
 
     }
 
-
-    private GridPane addGridPane() {
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.add(listView, 0, 0);
-        gridPane.add(open, 1, 0);
-        gridPane.add(execute, 1, 1);
-        gridPane.add(showConsole, 1, 2);
-        return gridPane;
-    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Monthly Report");
+        primaryStage.setTitle("Service Monthly Report");
         initComponents();
         setupComponents();
-        StackPane root = new StackPane();
-        primaryStage.setScene(new Scene(root, 300, 250));
+
+        open.setOnAction(event -> {
+            configureFileChooser(fileChooser);
+            File file = fileChooser.showOpenDialog(primaryStage);
+            if (file != null) {
+                // openFile(file);
+                System.out.println("Ficheiro adicionado à lista: " + file.getName());
+                list.add(file);
+            }
+        });
+
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (execute.isDisable())
+                execute.setDisable(false);
+            System.out.println("Observable Value is: " + observable.toString());
+            System.out.println("Old Value is: " + oldValue);
+            System.out.println("New Value is: " + newValue);
+        });
+
+        /*
+        listView.setOnMouseClicked(event -> {
+            if (!execute.isDisable() && listView.getSelectionModel().selectedItemProperty() == null) {
+                execute.setDisable(true);
+                System.out.println("Botão foi desativo...");
+            }
+        });
+        */
+        // When Console button pressed it shows all logs in a new Window
+        showConsole.setOnAction(event -> {
+            if(!showConsole.isDisable()) {
+                Stage stage = new Stage();
+                stage.setTitle("Console Log");
+                HBox hbox = new HBox();
+                hbox.getChildren().addAll(textArea);
+                Scene scene1 = new Scene(hbox);
+                stage.setScene(scene1);
+                stage.setMinWidth(500);
+                stage.setMinHeight(250);
+                stage.setOnCloseRequest(event1 -> {
+                    showConsole.setDisable(false);
+                });
+                stage.show();
+                showConsole.setDisable(true);
+            }
+        });
+        System.setOut(printStream);
+        primaryStage.setScene(new Scene(borderPane, 300, 150));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
+
+
+    private void configureFileChooser(final FileChooser fileChooser) {
+        fileChooser.setTitle("Select Excel File");
+        fileChooser.setInitialDirectory(
+                new File(System.getProperty("user.home"))
+        );
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("XLSX", "*.xlsx")
+        );
+    }
+
 
     /**
      * Launches the User Interface

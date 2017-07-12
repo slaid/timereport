@@ -9,9 +9,6 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-/**
- * Created by michael.carvalho on 11-07-2017.
- */
 public class ListViewSample extends Application {
     public static final ObservableList<String> names = FXCollections.observableArrayList();
     public static final ObservableList<String> data = FXCollections.observableArrayList();

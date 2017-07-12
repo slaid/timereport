@@ -6,6 +6,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RejectedExporter {
@@ -20,6 +22,16 @@ public class RejectedExporter {
                 XSSFCell cell;
                 XSSFCell cell1;
                 Pattern datePattern = Pattern.compile("\\d2-\\d2-\\d4");
+                Pattern colZeroPattern = Pattern.compile("[1-53]");
+                Pattern colOnePattern = Pattern.compile("");
+                Pattern colTwoPattern = Pattern.compile("");
+                Pattern colThreePattern = Pattern.compile("");
+                Pattern colFourPattern = Pattern.compile("");
+                Pattern colFivePattern = Pattern.compile("");
+                Pattern colSixPattern = Pattern.compile("");
+                Matcher matcher;
+
+
 
                 if (sheet != null) {
 
@@ -117,10 +129,82 @@ public class RejectedExporter {
                                         }
                                         newRowId++;
                                         break;
-                                    }
+                                   }
+                                   String tmp;
+                                   switch (c) {
+                                       case 0:
+                                           tmp = cell.getRawValue();
+                                           System.out.println(tmp);
+                                           break;
+                                       case 1:
+                                           Date tmpDate =DateUtil.getJavaDate(cell.getNumericCellValue());
+                                           System.out.println(tmpDate.toString());
+                                           break;
+                                       case 2:
+
+                                           break;
+                                       case 3:
+
+                                           break;
+                                       case 4:
+
+                                           break;
+                                       case 5:
+
+                                           break;
+                                       case 6:
+
+                                           break;
+                                       case 7:
+
+                                           break;
+
+                                   }
+
+
+                                   /*else {
+                                       System.out.println("Entro aqui?");
+                                       for (int i=0; i<row.getPhysicalNumberOfCells(); i++) {
+                                           cell =row.getCell(i);
+                                           newCell = newRow.createCell(i);
+                                           newCellType.cloneStyleFrom(cell.getCellStyle());
+
+                                           switch (i) {
+                                               case 0:
+                                                   if (!cell.getCellTypeEnum().equals(CellType.NUMERIC)) {
+                                                       System.out.println("- - - - - - NOT A NUMBER - - - - - ");
+                                                       newCell.setCellValue(cell.getRawValue());
+                                                   }
+                                                   break;
+                                               case 1:
+
+                                                   break;
+                                               case 2:
+
+                                                   break;
+                                               case 3:
+
+                                                   break;
+                                               case 4:
+
+                                                   break;
+                                               case 5:
+
+                                                   break;
+                                               case 6:
+
+                                                   break;
+                                               case 7:
+
+                                                   break;
+                                           }
+                                       }
+                                   }
+                                   */
+
                                 }
                             }
-                            // newRowId = 1;
+                            newRowId = 1;
                             long finalTime = System.currentTimeMillis();
                             long totalTime = (finalTime - initialTime) / 1000;
                             ExporterUtil.extractSystem(newWorkbook, "System");

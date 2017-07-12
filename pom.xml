@@ -54,8 +54,6 @@
 
     <build>
         <plugins>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -95,7 +93,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.cgi.timereport.exporter.SimpleCopyExcel</mainClass>
+                            <mainClass>com.cgi.timereport.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
