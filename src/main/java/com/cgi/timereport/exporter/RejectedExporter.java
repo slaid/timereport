@@ -162,6 +162,8 @@ public class RejectedExporter {
                                    }
 
 
+
+
                                    /*else {
                                        System.out.println("Entro aqui?");
                                        for (int i=0; i<row.getPhysicalNumberOfCells(); i++) {
