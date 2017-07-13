@@ -3,6 +3,8 @@ package com.cgi.timereport.exporter;
 
 import com.cgi.timereport.util.ExporterUtil;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.io.IOException;
@@ -26,15 +28,39 @@ public class SystemExporter {
                 XSSFCell cell;
 
                 int numOfRows = sheet.getPhysicalNumberOfRows();
+                try (XSSFWorkbook newWorkbook = new XSSFWorkbook()) {
+                    XSSFSheet newSheet = newWorkbook.createSheet();
+                    XSSFRow newRow;
+                    XSSFCell newCell;
+                    XSSFCellStyle newCellType = newWorkbook.createCellStyle();
 
-                if (sheet.getPhysicalNumberOfRows() > 0) {
-                    // This part is to add the header (row = 0)
-                    row = sheet.getRow(0);
-                    for (int c = 0; c < row.getPhysicalNumberOfCells(); c++) {
-                        cell = row.getCell(c);
+                    if (sheet.getPhysicalNumberOfRows() > 0) {
+                        // This part is to add the header (row = 0)
+                        row = sheet.getRow(0);
+                        newRow = newSheet.createRow(0);
 
+                        for (int i = 0; i < row.getPhysicalNumberOfCells(); i++) {
+                            cell = row.getCell(i);
+                            newCell = newRow.createCell(i);
+                            newSheet.setColumnWidth(i, sheet.getColumnWidth(i));
+                            newCellType.cloneStyleFrom(cell.getCellStyle());
+                            newCell.setCellStyle(newCellType);
+
+                            if (i == 0 || i == 1 || i == 2) {
+                                newCellType.setAlignment(HorizontalAlignment.CENTER_SELECTION);
+                                newCell.setCellStyle(newCellType);
+                            }
+
+                            if (cell.getCellTypeEnum().equals(CellType.STRING)) {
+                                newSheet.setAutoFilter(CellRangeAddress.valueOf("A1:H1"));
+                                newCell.setCellValue(cell.getStringCellValue());
+                            }
+
+                        }
                     }
                 }
+
+
 
                 // Collect Systems and put them in a SET
                 for (int r = 1; r < numOfRows; r++) {
@@ -59,6 +85,8 @@ public class SystemExporter {
 
 
                 for (String system: systems) {
+                    System.out.println("System: " + system);
+                    /*
                     try (XSSFWorkbook newWorkbook = new XSSFWorkbook()) {
                         XSSFSheet newSheet = newWorkbook.createSheet();
                         newWorkbook.setSheetName(0, system);
@@ -73,6 +101,7 @@ public class SystemExporter {
 
 
                     }
+                    */
                 }
 
 

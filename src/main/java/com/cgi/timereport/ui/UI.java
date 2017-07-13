@@ -1,5 +1,6 @@
 package com.cgi.timereport.ui;
 
+import com.cgi.timereport.exporter.RejectedExporter;
 import com.cgi.timereport.util.FXUtil;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -39,6 +40,7 @@ public class UI extends Application {
     private FileChooser fileChooser;
     private Desktop desktop;
     private String tmpStringFile;
+    private RejectedExporter rejectedExporter;
 
     /**
      * Initiates the Graphical components
@@ -103,25 +105,19 @@ public class UI extends Application {
                 // openFile(file);
                 System.out.println("Ficheiro adicionado à lista: " + file.getName());
                 list.add(file);
+                System.out.println(file.getAbsolutePath());
+                rejectedExporter = new RejectedExporter(file.getAbsolutePath());
             }
         });
 
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (execute.isDisable())
                 execute.setDisable(false);
-            System.out.println("Observable Value is: " + observable.toString());
-            System.out.println("Old Value is: " + oldValue);
-            System.out.println("New Value is: " + newValue);
+            // System.out.println("Observable Value is: " + observable.toString());
+            // System.out.println("Old Value is: " + oldValue);
+            // System.out.println("New Value is: " + newValue);
         });
 
-        /*
-        listView.setOnMouseClicked(event -> {
-            if (!execute.isDisable() && listView.getSelectionModel().selectedItemProperty() == null) {
-                execute.setDisable(true);
-                System.out.println("Botão foi desativo...");
-            }
-        });
-        */
         // When Console button pressed it shows all logs in a new Window
         showConsole.setOnAction(event -> {
             if(!showConsole.isDisable()) {
@@ -140,6 +136,11 @@ public class UI extends Application {
                 showConsole.setDisable(true);
             }
         });
+
+        execute.setOnAction(event -> {
+            rejectedExporter.execute();
+        });
+
         System.setOut(printStream);
         primaryStage.setScene(new Scene(borderPane, 300, 150));
         primaryStage.setResizable(false);
